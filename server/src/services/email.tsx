@@ -6,6 +6,7 @@ import { MailgunMailer } from './email/mailgun'
 import { ResendMailer } from './email/resend'
 import { SendgridMailer } from './email/sendgrid'
 import { PostmarkMailer } from './email/postmark'
+import { ForwardemailMailer } from './email/forwardemail'
 import { SmtpMailer } from './email/smtp'
 import {
   cryptoUtil, loggerUtil,
@@ -38,6 +39,8 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
     RESEND_SENDER_ADDRESS: resendSender,
     POSTMARK_API_KEY: postmarkApiKey,
     POSTMARK_SENDER_ADDRESS: postmarkSender,
+    FORWARDEMAIL_API_KEY: forwardemailApiKey,
+    FORWARDEMAIL_SENDER_ADDRESS: forwardemailSender
   } = env(c)
   if (
     !c.env.SMTP &&
@@ -45,7 +48,8 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
     (!brevoApiKey || !brevoSender) &&
     (!sendgridApiKey || !sendgridSender) &&
     (!resendApiKey || !resendSender) &&
-    (!postmarkApiKey || !postmarkSender)
+    (!postmarkApiKey || !postmarkSender) && 
+    (!forwardemailApiKey || !forwardemailSender)
   ) {
     loggerUtil.triggerLogger(
       c,
@@ -76,6 +80,10 @@ const buildMailer = (context: Context<typeConfig.Context>): IMailer => {
 
   if (vars.RESEND_API_KEY && vars.RESEND_SENDER_ADDRESS) {
     return new ResendMailer({ context })
+  }
+
+  if (vars.FORWARDEMAIL_API_KEY && vars.FORWARDEMAIL_SENDER_ADDRESS) {
+    return new ForwardemailMailer({ context })
   }
 
   // checkEmailSetup should have been called before this
@@ -121,7 +129,7 @@ export const sendEmail = async (
       }
     }
   }
-
+  
   if (enableEmailLog) {
     await emailLogModel.create(
       c.env.DB,
