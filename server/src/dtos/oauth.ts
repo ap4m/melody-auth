@@ -3,6 +3,7 @@ import {
   IsOptional,
 } from 'class-validator'
 import { typeConfig } from 'configs'
+import * as baseDto from 'dtos/base'
 
 enum AuthorizeResponseType {
   Code = 'code',
@@ -30,21 +31,14 @@ export enum Policy {
 
 const parseScopes = (scopes: string[]) => scopes.map((s) => s.trim().toLowerCase())
 
-export class GetAuthorizeDto {
-  @IsString()
-  @IsNotEmpty()
-    clientId: string
-
+export class CoreAuthorizeDto {
   @IsString()
   @IsNotEmpty()
     redirectUri: string
 
-  @IsEnum(AuthorizeResponseType)
-    responseType: string
-
   @IsString()
   @IsNotEmpty()
-    state: string
+    clientId: string
 
   @IsString()
   @IsNotEmpty()
@@ -53,10 +47,6 @@ export class GetAuthorizeDto {
   @IsEnum(AuthorizeCodeChallengeMethod)
     codeChallengeMethod: string
 
-  @IsString()
-  @IsOptional()
-    authorizeMethod?: string | undefined
-
   @IsString({ each: true })
   @ArrayMinSize(1)
     scopes: string[]
@@ -64,30 +54,47 @@ export class GetAuthorizeDto {
   @IsString()
     locale: typeConfig.Locale
 
-  @IsEnum(Policy)
-  @IsOptional()
-    policy?: string | undefined
-
   @IsString()
   @IsOptional()
     org?: string | undefined
 
-  constructor (dto: GetAuthorizeDto) {
-    this.clientId = dto.clientId
+  constructor (dto: CoreAuthorizeDto) {
     this.redirectUri = dto.redirectUri.toLowerCase()
-    this.responseType = dto.responseType.toLowerCase()
-    this.state = dto.state
+    this.clientId = dto.clientId
     this.codeChallenge = dto.codeChallenge
-    this.codeChallengeMethod = dto.codeChallengeMethod.toLowerCase()
+    this.codeChallengeMethod = dto.codeChallengeMethod?.toLowerCase()
     this.scopes = parseScopes(dto.scopes)
     this.locale = dto.locale
-    this.policy = dto.policy
     this.org = dto.org
-    this.authorizeMethod = dto.authorizeMethod
   }
 }
 
-export class PostTokenAuthCodeDto {
+export class GetAuthorizeDto extends CoreAuthorizeDto {
+  @IsEnum(AuthorizeResponseType)
+    responseType: string
+
+  @IsString()
+  @IsNotEmpty()
+    state: string
+
+  @IsString()
+  @IsOptional()
+    authorizeMethod?: string | undefined
+
+  @IsEnum(Policy)
+  @IsOptional()
+    policy?: string | undefined
+
+  constructor (dto: GetAuthorizeDto) {
+    super(dto)
+    this.responseType = dto.responseType.toLowerCase()
+    this.state = dto.state
+    this.authorizeMethod = dto.authorizeMethod
+    this.policy = dto.policy
+  }
+}
+
+export class PostTokenAuthCodeDto extends baseDto.AuthCodeTokenExchangeDto {
   @IsEnum(TokenGrantType)
     grantType: string
 
@@ -95,28 +102,20 @@ export class PostTokenAuthCodeDto {
   @IsNotEmpty()
     code: string
 
-  @IsString()
-  @IsNotEmpty()
-    codeVerifier: string
-
   constructor (dto: PostTokenAuthCodeDto) {
-    this.grantType = dto.grantType
+    super(dto)
     this.code = dto.code
-    this.codeVerifier = dto.codeVerifier
+    this.grantType = dto.grantType
   }
 }
 
-export class PostTokenRefreshTokenDto {
+export class PostTokenRefreshTokenDto extends baseDto.RefreshTokenTokenExchangeDto {
   @IsEnum(TokenGrantType)
     grantType: string
 
-  @IsString()
-  @IsNotEmpty()
-    refreshToken: string
-
   constructor (dto: PostTokenRefreshTokenDto) {
+    super(dto)
     this.grantType = dto.grantType
-    this.refreshToken = dto.refreshToken
   }
 }
 
