@@ -26,26 +26,23 @@ const PostSignInReq = {
   properties: {
     email: { type: 'string' },
     password: { type: 'string' },
-    sessionId: { type: 'string' },
   },
   required: [
-    'email', 'password', 'sessionId',
+    'email', 'password',
   ],
 }
 
-const TokenExchangeReq = {
+const PostSignUpReq = {
   type: 'object',
   properties: {
-    codeVerifier: { type: 'string' },
-    sessionId: { type: 'string' },
+    email: { type: 'string' },
+    password: { type: 'string' },
+    firstName: { type: 'string' },
+    lastName: { type: 'string' },
   },
-  required: ['codeVerifier', 'sessionId'],
-}
-
-const TokenRefreshReq = {
-  type: 'object',
-  properties: { refreshToken: { type: 'string' } },
-  required: ['refreshToken'],
+  required: [
+    'email', 'password',
+  ],
 }
 
 const AuthRes = {
@@ -59,6 +56,15 @@ const AuthRes = {
     success: { type: 'boolean' },
   },
   required: ['sessionId', 'success'],
+}
+
+const TokenExchangeReq = {
+  type: 'object',
+  properties: {
+    codeVerifier: { type: 'string' },
+    sessionId: { type: 'string' },
+  },
+  required: ['codeVerifier', 'sessionId'],
 }
 
 const TokenExchangeRes = {
@@ -80,6 +86,12 @@ const TokenExchangeRes = {
   required: ['access_token', 'expires_in', 'expires_on', 'not_before', 'token_type', 'scope'],
 }
 
+const TokenRefreshReq = {
+  type: 'object',
+  properties: { refreshToken: { type: 'string' } },
+  required: ['refreshToken'],
+}
+
 const TokenRefreshRes = {
   type: 'object',
   properties: {
@@ -93,12 +105,60 @@ const TokenRefreshRes = {
   required: ['access_token', 'expires_in', 'expires_on', 'token_type'],
 }
 
+const SignOutReq = {
+  type: 'object',
+  properties: {
+    refreshToken: { type: 'string' }, clientId: { type: 'string' },
+  },
+  required: ['refreshToken', 'clientId'],
+}
+
+const GetAppConsentRes = {
+  type: 'object',
+  properties: {
+    scopes: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          name: { type: 'string' },
+          note: { type: 'string' },
+          createdAt: { type: 'string' },
+          updatedAt: { type: 'string' },
+          deletedAt: { type: 'string' },
+          locales: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'number' },
+                scopeId: { type: 'number' },
+                locale: { type: 'string' },
+                value: { type: 'string' },
+                createdAt: { type: 'string' },
+                updatedAt: { type: 'string' },
+                deletedAt: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+    appName: { type: 'string' },
+  },
+  required: ['scopes', 'appName'],
+}
+
 module.exports = {
   PostInitiateReq,
   PostSignInReq,
+  PostSignUpReq,
   TokenExchangeReq,
   TokenRefreshReq,
   AuthRes,
   TokenExchangeRes,
   TokenRefreshRes,
+  SignOutReq,
+  GetAppConsentRes,
 }

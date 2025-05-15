@@ -39,10 +39,48 @@ embeddedRoutes.post(
 
 /**
  * @swagger
- * /embedded-auth/v1/sign-in:
+ * /embedded-auth/v1/{sessionId}/sign-up:
+ *   post:
+ *     summary: Sign up using the embedded auth session
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PostSignUpReq'
+ *     responses:
+ *       200:
+ *         description: Next step of the auth flow
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.SignUp,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.signUp,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/sign-in:
  *   post:
  *     summary: Sign in using the embedded auth session
  *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -55,12 +93,64 @@ embeddedRoutes.post(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/EmbeddedAuthResponse'
+ *               $ref: '#/components/schemas/AuthRes'
  */
 embeddedRoutes.post(
   routeConfig.EmbeddedRoute.SignIn,
   setupMiddleware.validEmbeddedOrigin,
   embeddedHandler.signIn,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/app-consent:
+ *   get:
+ *     summary: Get app consent
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: App consent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GetAppConsentRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.AppConsent,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.getAppConsent,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/app-consent:
+ *   post:
+ *     summary: Post app consent
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: App consent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.AppConsent,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postAppConsent,
 )
 
 /**
@@ -113,4 +203,26 @@ embeddedRoutes.post(
   routeConfig.EmbeddedRoute.TokenRefresh,
   setupMiddleware.validEmbeddedOrigin,
   embeddedHandler.tokenRefresh,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/sign-out:
+ *   post:
+ *     summary: Sign out
+ *     tags: [Embedded Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SignOutReq'
+ *     responses:
+ *       200:
+ *         description: Sign out successfully
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.SignOut,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.signOut,
 )
