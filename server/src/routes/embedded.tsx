@@ -3,7 +3,9 @@ import {
   routeConfig, typeConfig,
 } from 'configs'
 import { embeddedHandler } from 'handlers'
-import { setupMiddleware } from 'middlewares'
+import {
+  configMiddleware, setupMiddleware,
+} from 'middlewares'
 
 const embeddedRoutes = new Hono<typeConfig.Context>()
 export default embeddedRoutes
@@ -66,6 +68,7 @@ embeddedRoutes.post(
 embeddedRoutes.post(
   routeConfig.EmbeddedRoute.SignUp,
   setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableSignUp,
   embeddedHandler.signUp,
 )
 
@@ -98,6 +101,7 @@ embeddedRoutes.post(
 embeddedRoutes.post(
   routeConfig.EmbeddedRoute.SignIn,
   setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enablePasswordSignIn,
   embeddedHandler.signIn,
 )
 
@@ -124,6 +128,7 @@ embeddedRoutes.post(
 embeddedRoutes.get(
   routeConfig.EmbeddedRoute.AppConsent,
   setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableAppConsent,
   embeddedHandler.getAppConsent,
 )
 
@@ -150,7 +155,120 @@ embeddedRoutes.get(
 embeddedRoutes.post(
   routeConfig.EmbeddedRoute.AppConsent,
   setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableAppConsent,
   embeddedHandler.postAppConsent,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/email-mfa-code:
+ *   post:
+ *     summary: send an email mfa code to the user
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: an email mfa code has been sent to the user
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.EmailMfaCode,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postEmailMfaCode,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/email-mfa:
+ *   post:
+ *     summary: verify the email mfa code
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/MfaCodeReq'
+ *     responses:
+ *       200:
+ *         description: the email mfa code has been verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.EmailMfa,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postEmailMfa,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/otp-mfa:
+ *   get:
+ *     summary: get the otp mfa config
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: the otp mfa config
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MfaSetupReq'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.OtpMfa,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.getOtpMfa,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/otp-mfa:
+ *   post:
+ *     summary: verify the otp mfa code
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/MfaCodeReq'
+ *     responses:
+ *       200:
+ *         description: the otp mfa code has been verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.OtpMfa,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postOtpMfa,
 )
 
 /**
@@ -225,4 +343,27 @@ embeddedRoutes.post(
   routeConfig.EmbeddedRoute.SignOut,
   setupMiddleware.validEmbeddedOrigin,
   embeddedHandler.signOut,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/reset-password-code:
+ *   post:
+ *     summary: Trigger a password reset code
+ *     tags: [Embedded Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ResetPasswordReq'
+ *     responses:
+ *       200:
+ *         description: Password reset email triggered
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.ResetPasswordCode,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enablePasswordReset,
+  embeddedHandler.resetPassword,
 )

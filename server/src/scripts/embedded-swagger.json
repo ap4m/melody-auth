@@ -98,6 +98,28 @@
           "sessionId"
         ]
       },
+      "MfaCodeReq": {
+        "type": "object",
+        "properties": {
+          "mfaCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mfaCode"
+        ]
+      },
+      "MfaSetupReq": {
+        "type": "object",
+        "properties": {
+          "couldFallbackToEmailMfa": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "couldFallbackToEmailMfa"
+        ]
+      },
       "AuthRes": {
         "type": "object",
         "properties": {
@@ -289,6 +311,20 @@
           "scopes",
           "appName"
         ]
+      },
+      "ResetPasswordReq": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ]
       }
     }
   },
@@ -466,6 +502,137 @@
         }
       }
     },
+    "/embedded-auth/v1/{sessionId}/email-mfa-code": {
+      "post": {
+        "summary": "send an email mfa code to the user",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "an email mfa code has been sent to the user"
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/{sessionId}/email-mfa": {
+      "post": {
+        "summary": "verify the email mfa code",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MfaCodeReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the email mfa code has been verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/{sessionId}/otp-mfa": {
+      "get": {
+        "summary": "get the otp mfa config",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the otp mfa config",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MfaSetupReq"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "verify the otp mfa code",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MfaCodeReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the otp mfa code has been verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/embedded-auth/v1/token-exchange": {
       "post": {
         "summary": "Exchange the auth code for access token, refresh token, id token",
@@ -545,6 +712,29 @@
         "responses": {
           "200": {
             "description": "Sign out successfully"
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/reset-password-code": {
+      "post": {
+        "summary": "Trigger a password reset code",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset email triggered"
           }
         }
       }

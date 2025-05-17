@@ -125,6 +125,14 @@ export interface EmbeddedSessionBody {
   mfa?: AuthCodeBodyMfaConfig;
 }
 
+export interface EmbeddedSessionBodyWithUser {
+  request: oauthDto.CoreAuthorizeDto;
+  appId: number;
+  appName: string;
+  user: userModel.Record;
+  mfa?: AuthCodeBodyMfaConfig;
+}
+
 export interface AccessTokenBody {
   sub: string;
   azp: string;

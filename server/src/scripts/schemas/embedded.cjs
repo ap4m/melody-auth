@@ -45,6 +45,18 @@ const PostSignUpReq = {
   ],
 }
 
+const MfaCodeReq = {
+  type: 'object',
+  properties: { mfaCode: { type: 'string' } },
+  required: ['mfaCode'],
+}
+
+const MfaSetupReq = {
+  type: 'object',
+  properties: { couldFallbackToEmailMfa: { type: 'boolean' } },
+  required: ['couldFallbackToEmailMfa'],
+}
+
 const AuthRes = {
   type: 'object',
   properties: {
@@ -150,15 +162,27 @@ const GetAppConsentRes = {
   required: ['scopes', 'appName'],
 }
 
+const ResetPasswordReq = {
+  type: 'object',
+  properties: {
+    email: { type: 'string' },
+    locale: { type: 'string' },
+  },
+  required: ['email'],
+}
+
 module.exports = {
   PostInitiateReq,
   PostSignInReq,
   PostSignUpReq,
   TokenExchangeReq,
   TokenRefreshReq,
+  MfaCodeReq,
+  MfaSetupReq,
   AuthRes,
   TokenExchangeRes,
   TokenRefreshRes,
   SignOutReq,
   GetAppConsentRes,
+  ResetPasswordReq,
 }
