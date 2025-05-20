@@ -1,39 +1,26 @@
 import {
-  IsStrongPassword, IsEmail, IsNotEmpty, IsString,
+  IsNotEmpty,
+  IsString,
   Length,
   IsOptional,
 } from 'class-validator'
 import * as baseDto from 'dtos/base'
-
-export class EmbeddedSessionDto {
-  @IsString()
-  @IsNotEmpty()
-    sessionId: string
-
-  constructor (dto: EmbeddedSessionDto) {
-    this.sessionId = dto.sessionId
-  }
-}
+import { userModel } from 'models'
 
 export class SignInDto
-  extends EmbeddedSessionDto
-  implements baseDto.SignInDto {
-  @IsEmail()
-    email: string
+  extends baseDto.SignInDto {
+    @IsString()
+    @IsNotEmpty()
+      sessionId: string
 
-  @IsStrongPassword()
-    password: string
-
-  constructor (dto: SignInDto) {
-    super(dto)
-    this.email = dto.email.toLowerCase()
-    this.password = dto.password
-  }
+    constructor (dto: SignInDto) {
+      super(dto)
+      this.sessionId = dto.sessionId
+    }
 }
 
 export class SignUpDtoWithNames
-  extends SignInDto
-  implements baseDto.NamesDto {
+  extends SignInDto {
   @IsString()
   @IsOptional()
   @Length(
@@ -58,8 +45,7 @@ export class SignUpDtoWithNames
 }
 
 export class SignUpDtoWithRequiredNames
-  extends SignInDto
-  implements baseDto.RequiredNamesDto {
+  extends SignInDto {
   @IsString()
   @Length(
     1,
@@ -82,15 +68,14 @@ export class SignUpDtoWithRequiredNames
 }
 
 export class TokenExchangeDto
-  extends EmbeddedSessionDto
-  implements baseDto.AuthCodeTokenExchangeDto {
+  extends baseDto.AuthCodeTokenExchangeDto {
   @IsString()
   @IsNotEmpty()
-    codeVerifier: string
+    sessionId: string
 
   constructor (dto: TokenExchangeDto) {
     super(dto)
-    this.codeVerifier = dto.codeVerifier
+    this.sessionId = dto.sessionId
   }
 }
 
@@ -139,5 +124,15 @@ export class SmsMfaSetupDto {
 
   constructor (dto: SmsMfaSetupDto) {
     this.phoneNumber = dto.phoneNumber
+  }
+}
+
+export class PostMfaEnrollmentDto {
+  @IsString()
+  @IsNotEmpty()
+    type: userModel.MfaType
+
+  constructor (dto: PostMfaEnrollmentDto) {
+    this.type = dto.type
   }
 }
