@@ -75,6 +75,7 @@
   - Brevo
   - Resend
   - Postmark
+  - ForwardEmail
   - SMTP (Node.js environment only)
 - <b>SMS Option</b> [SMS Provider Setup Doc](https://auth.valuemelody.com/sms-provider-setup.html)
   - Twilio

@@ -1,6 +1,7 @@
 name = "melody-auth"
 compatibility_date = "2025-01-01"
 keep_vars = true
+compatibility_flags = [ "nodejs_compat" ]
 
 # Cloudflare account id, required if your cloudflare account is sharing access with other cloudflare accounts
 # account_id = ""
