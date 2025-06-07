@@ -5,7 +5,9 @@ export const addTagTypes = [
   'Orgs',
   'Apps',
   'Users',
+  'User Attributes',
   'Logs',
+  'SAML',
 ] as const
 const injectedRtkApi = api
   .enhanceEndpoints({ addTagTypes })
@@ -391,6 +393,52 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Users'],
       }),
+      getApiV1UserAttributes: build.query<
+        GetApiV1UserAttributesApiResponse,
+        GetApiV1UserAttributesApiArg
+      >({
+        query: () => ({ url: '/api/v1/user-attributes' }),
+        providesTags: ['User Attributes'],
+      }),
+      postApiV1UserAttributes: build.mutation<
+        PostApiV1UserAttributesApiResponse,
+        PostApiV1UserAttributesApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/user-attributes',
+          method: 'POST',
+          body: queryArg.postUserAttributeReq,
+        }),
+        invalidatesTags: ['User Attributes'],
+      }),
+      getApiV1UserAttributesById: build.query<
+        GetApiV1UserAttributesByIdApiResponse,
+        GetApiV1UserAttributesByIdApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/user-attributes/${queryArg.id}` }),
+        providesTags: ['User Attributes'],
+      }),
+      putApiV1UserAttributesById: build.mutation<
+        PutApiV1UserAttributesByIdApiResponse,
+        PutApiV1UserAttributesByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/user-attributes/${queryArg.id}`,
+          method: 'PUT',
+          body: queryArg.putUserAttributeReq,
+        }),
+        invalidatesTags: ['User Attributes'],
+      }),
+      deleteApiV1UserAttributesById: build.mutation<
+        DeleteApiV1UserAttributesByIdApiResponse,
+        DeleteApiV1UserAttributesByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/user-attributes/${queryArg.id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['User Attributes'],
+      }),
       getApiV1LogsEmail: build.query<
         GetApiV1LogsEmailApiResponse,
         GetApiV1LogsEmailApiArg
@@ -483,6 +531,52 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({ url: `/api/v1/logs/sign-in/${queryArg.id}` }),
         providesTags: ['Logs'],
+      }),
+      getApiV1SamlIdps: build.query<
+        GetApiV1SamlIdpsApiResponse,
+        GetApiV1SamlIdpsApiArg
+      >({
+        query: () => ({ url: '/api/v1/saml/idps' }),
+        providesTags: ['SAML'],
+      }),
+      postApiV1SamlIdps: build.mutation<
+        PostApiV1SamlIdpsApiResponse,
+        PostApiV1SamlIdpsApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/saml/idps',
+          method: 'POST',
+          body: queryArg.postSamlIdpReq,
+        }),
+        invalidatesTags: ['SAML'],
+      }),
+      getApiV1SamlIdpsById: build.query<
+        GetApiV1SamlIdpsByIdApiResponse,
+        GetApiV1SamlIdpsByIdApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/saml/idps/${queryArg.id}` }),
+        providesTags: ['SAML'],
+      }),
+      putApiV1SamlIdpsById: build.mutation<
+        PutApiV1SamlIdpsByIdApiResponse,
+        PutApiV1SamlIdpsByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/saml/idps/${queryArg.id}`,
+          method: 'PUT',
+          body: queryArg.putSamlIdpReq,
+        }),
+        invalidatesTags: ['SAML'],
+      }),
+      deleteApiV1SamlIdpsById: build.mutation<
+        DeleteApiV1SamlIdpsByIdApiResponse,
+        DeleteApiV1SamlIdpsByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/saml/idps/${queryArg.id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['SAML'],
       }),
     }),
     overrideExisting: false,
@@ -784,6 +878,40 @@ export type PostApiV1UsersByAuthIdImpersonationAndAppIdApiArg = {
     impersonatorToken?: string;
   };
 };
+export type GetApiV1UserAttributesApiResponse =
+  /** status 200 A list of user attributes */ {
+    userAttributes?: UserAttribute[];
+  };
+export type GetApiV1UserAttributesApiArg = void;
+export type PostApiV1UserAttributesApiResponse =
+  /** status 200 A user attribute */ {
+    userAttribute?: UserAttribute;
+  };
+export type PostApiV1UserAttributesApiArg = {
+  postUserAttributeReq: PostUserAttributeReq;
+};
+export type GetApiV1UserAttributesByIdApiResponse =
+  /** status 200 A user attribute */ {
+    userAttribute?: UserAttribute;
+  };
+export type GetApiV1UserAttributesByIdApiArg = {
+  /** The unique ID of the user attribute */
+  id: number;
+};
+export type PutApiV1UserAttributesByIdApiResponse =
+  /** status 200 A user attribute */ {
+    userAttribute?: UserAttribute;
+  };
+export type PutApiV1UserAttributesByIdApiArg = {
+  /** The unique ID of the user attribute */
+  id: number;
+  putUserAttributeReq: PutUserAttributeReq;
+};
+export type DeleteApiV1UserAttributesByIdApiResponse = unknown;
+export type DeleteApiV1UserAttributesByIdApiArg = {
+  /** The unique ID of the user attribute */
+  id: number;
+};
 export type GetApiV1LogsEmailApiResponse =
   /** status 200 A list of email logs */ {
     logs?: EmailLog[];
@@ -856,6 +984,36 @@ export type GetApiV1LogsSignInByIdApiResponse =
   };
 export type GetApiV1LogsSignInByIdApiArg = {
   /** The unique ID of the sign-in log */
+  id: number;
+};
+export type GetApiV1SamlIdpsApiResponse =
+  /** status 200 A list of SAML IDPs */ {
+    idps?: SamlIdp[];
+  };
+export type GetApiV1SamlIdpsApiArg = void;
+export type PostApiV1SamlIdpsApiResponse = /** status 201 undefined */ {
+  idp?: SamlIdp;
+};
+export type PostApiV1SamlIdpsApiArg = {
+  postSamlIdpReq: PostSamlIdpReq;
+};
+export type GetApiV1SamlIdpsByIdApiResponse = /** status 200 A SAML IDP */ {
+  idp?: SamlIdp;
+};
+export type GetApiV1SamlIdpsByIdApiArg = {
+  id: number;
+};
+export type PutApiV1SamlIdpsByIdApiResponse = /** status 200 undefined */ {
+  idp?: SamlIdp;
+};
+export type PutApiV1SamlIdpsByIdApiArg = {
+  /** The unique ID of the SAML IDP */
+  id: number;
+  putSamlIdpReq: PutSamlIdpReq;
+};
+export type DeleteApiV1SamlIdpsByIdApiResponse = unknown;
+export type DeleteApiV1SamlIdpsByIdApiArg = {
+  /** The unique ID of the SAML IDP */
   id: number;
 };
 export type Scope = {
@@ -1026,6 +1184,9 @@ export type UserDetail = User & {
     name?: string;
     slug?: string;
   } | null;
+  attributes?: {
+    [key: string]: string;
+  } | null;
 };
 export type PutUserReq = {
   firstName?: string;
@@ -1034,6 +1195,9 @@ export type PutUserReq = {
   locale?: string;
   orgSlug?: string;
   roles?: string[];
+  attributes?: {
+    [key: string]: string | null;
+  };
 };
 export type UserConsentedApp = {
   appId: number;
@@ -1043,6 +1207,43 @@ export type UserPasskey = {
   id: number;
   credentialId: string;
   counter: number;
+};
+export type UserAttribute = {
+  id: number;
+  name: string;
+  locales?: {
+    locale: string;
+    value: string;
+  }[];
+  includeInSignUpForm: boolean;
+  requiredInSignUpForm: boolean;
+  includeInIdTokenBody: boolean;
+  includeInUserInfo: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+export type PostUserAttributeReq = {
+  name: string;
+  locales?: {
+    locale: string;
+    value: string;
+  }[];
+  includeInSignUpForm: boolean;
+  requiredInSignUpForm: boolean;
+  includeInIdTokenBody: boolean;
+  includeInUserInfo: boolean;
+};
+export type PutUserAttributeReq = {
+  name?: string;
+  locales?: {
+    locale: string;
+    value: string;
+  }[];
+  includeInSignUpForm?: boolean;
+  requiredInSignUpForm?: boolean;
+  includeInIdTokenBody?: boolean;
+  includeInUserInfo?: boolean;
 };
 export type EmailLog = {
   id: number;
@@ -1072,6 +1273,33 @@ export type SignInLog = {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+};
+export type SamlIdp = {
+  id: number;
+  name: string;
+  userIdAttribute: string;
+  emailAttribute: string | null;
+  firstNameAttribute: string | null;
+  lastNameAttribute: string | null;
+  metadata: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+export type PostSamlIdpReq = {
+  name: string;
+  userIdAttribute: string;
+  emailAttribute: string | null;
+  firstNameAttribute: string | null;
+  lastNameAttribute: string | null;
+  metadata: string;
+};
+export type PutSamlIdpReq = {
+  userIdAttribute?: string;
+  emailAttribute?: string;
+  firstNameAttribute?: string;
+  lastNameAttribute?: string;
+  metadata?: string;
 };
 export const {
   useGetApiV1ScopesQuery,
@@ -1129,6 +1357,13 @@ export const {
   usePostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdMutation,
   useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
+  useGetApiV1UserAttributesQuery,
+  useLazyGetApiV1UserAttributesQuery,
+  usePostApiV1UserAttributesMutation,
+  useGetApiV1UserAttributesByIdQuery,
+  useLazyGetApiV1UserAttributesByIdQuery,
+  usePutApiV1UserAttributesByIdMutation,
+  useDeleteApiV1UserAttributesByIdMutation,
   useGetApiV1LogsEmailQuery,
   useLazyGetApiV1LogsEmailQuery,
   useDeleteApiV1LogsEmailMutation,
@@ -1144,4 +1379,11 @@ export const {
   useDeleteApiV1LogsSignInMutation,
   useGetApiV1LogsSignInByIdQuery,
   useLazyGetApiV1LogsSignInByIdQuery,
+  useGetApiV1SamlIdpsQuery,
+  useLazyGetApiV1SamlIdpsQuery,
+  usePostApiV1SamlIdpsMutation,
+  useGetApiV1SamlIdpsByIdQuery,
+  useLazyGetApiV1SamlIdpsByIdQuery,
+  usePutApiV1SamlIdpsByIdMutation,
+  useDeleteApiV1SamlIdpsByIdMutation,
 } = injectedRtkApi

@@ -72,6 +72,7 @@ export type Bindings = {
   TERMS_LINK: string;
   PRIVACY_POLICY_LINK: string;
   ENABLE_ORG: boolean;
+  ENABLE_USER_ATTRIBUTE: boolean;
   ENABLE_EMAIL_LOG: boolean;
   ENABLE_SMS_LOG: boolean;
   ENABLE_SIGN_IN_LOG: boolean;
@@ -87,6 +88,7 @@ export type Bindings = {
   APPLE_AUTH_CLIENT_SECRET: string;
   OIDC_AUTH_PROVIDERS: string[] | undefined;
   EMBEDDED_AUTH_ORIGINS: string[];
+  ENABLE_SAML_SP: boolean;
 };
 
 export type Context = {

@@ -79,8 +79,10 @@ describe(
           ENABLE_PASSWORD_SIGN_IN: true,
           ENABLE_PASSWORDLESS_SIGN_IN: false,
           ENABLE_ORG: false,
+          ENABLE_USER_ATTRIBUTE: false,
           BLOCKED_POLICIES: [],
           EMBEDDED_AUTH_ORIGINS: [],
+          ENABLE_SAML_SSO_AS_SP: false,
         })
       },
     )

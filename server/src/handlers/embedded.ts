@@ -6,6 +6,7 @@ import {
 } from 'configs'
 import {
   appService, consentService, emailService, identityService, kvService, mfaService, oauthService, scopeService,
+  userAttributeService,
   userService,
 } from 'services'
 import {
@@ -20,7 +21,7 @@ import {
 } from 'hooks'
 import { userModel } from 'models'
 
-const sessionBodyToAuthCodeBody = (sessionBody: typeConfig.EmbeddedSessionBody): typeConfig.AuthCodeBody => {
+export const sessionBodyToAuthCodeBody = (sessionBody: typeConfig.EmbeddedSessionBody): typeConfig.AuthCodeBody => {
   if (!sessionBody.user) {
     throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
   }
@@ -125,6 +126,16 @@ const processAuthorizeWithUser = async (
   return result
 }
 
+export const getSignUpInfo = async (c: Context<typeConfig.Context>) => {
+  const { ENABLE_USER_ATTRIBUTE: enableUserAttribute } = env(c)
+
+  const userAttributes = enableUserAttribute
+    ? await userAttributeService.getUserSignUpAttributes(c)
+    : []
+
+  return c.json({ userAttributes })
+}
+
 export const signUp = async (c: Context<typeConfig.Context>) => {
   await signUpHook.preSignUp()
 
@@ -158,6 +169,11 @@ export const signUp = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
   }
 
+  const attributeValues = await userAttributeService.getUserSignUpAttributeValues(
+    c,
+    reqBody,
+  )
+
   const user = await userService.createAccountWithPassword(
     c,
     {
@@ -168,6 +184,7 @@ export const signUp = async (c: Context<typeConfig.Context>) => {
       locale: sessionBody.request.locale,
       org: sessionBody.request.org,
     },
+    attributeValues,
   )
 
   if (enableEmailVerification) {

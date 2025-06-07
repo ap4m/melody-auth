@@ -86,6 +86,7 @@ export interface PaginatedApiRecords {
 export interface ApiRecordFull extends ApiRecord {
   roles?: string[];
   org?: orgModel.ApiRecord | null;
+  attributes?: globalThis.Record<string, string>;
 }
 
 export interface Create {
@@ -170,6 +171,7 @@ export const convertToApiRecordFull = (
   enableOrg: boolean,
   roles: string[],
   org: orgModel.Record | null | undefined,
+  attributes: globalThis.Record<string, string> | undefined,
 ): ApiRecordFull => {
   const result: ApiRecordFull = convertToApiRecord(
     record,
@@ -181,6 +183,7 @@ export const convertToApiRecordFull = (
   return {
     ...result,
     roles,
+    attributes,
   }
 }
 
@@ -330,6 +333,19 @@ export const getOidcUserById = async (
     .bind(
       oidcId,
       provider,
+    )
+  const user = await stmt.first() as Raw | null
+  return user ? convertToRecord(user) : null
+}
+
+export const getSamlUserById = async (
+  db: D1Database, userId: string, idpName: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "socialAccountId" = $1 AND "socialAccountType" = $2  AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query)
+    .bind(
+      userId,
+      `SAML_${idpName}`,
     )
   const user = await stmt.first() as Raw | null
   return user ? convertToRecord(user) : null

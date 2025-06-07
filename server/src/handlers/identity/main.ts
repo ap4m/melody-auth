@@ -14,12 +14,14 @@ import {
 } from 'dtos'
 import {
   appService, consentService, emailService,
-  identityService, kvService, mfaService, userService,
+  identityService, kvService, mfaService, userAttributeService, userService,
 } from 'services'
 import {
   requestUtil, validateUtil, loggerUtil,
 } from 'utils'
-import { scopeModel } from 'models'
+import {
+  scopeModel, userAttributeModel,
+} from 'models'
 import {
   signUpHook, signInHook,
 } from 'hooks'
@@ -60,6 +62,20 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   return c.json(result)
 }
 
+export interface GetAuthorizeAccountRes {
+  userAttributes: userAttributeModel.Record[];
+}
+export const getAuthorizeAccount = async (c: Context<typeConfig.Context>):
+  Promise<TypedResponse<GetAuthorizeAccountRes>> => {
+  const { ENABLE_USER_ATTRIBUTE: enableUserAttribute } = env(c)
+
+  const userAttributes = enableUserAttribute
+    ? await userAttributeService.getUserSignUpAttributes(c)
+    : []
+
+  return c.json({ userAttributes })
+}
+
 export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   await signUpHook.preSignUp()
 
@@ -90,9 +106,15 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     bodyDto.redirectUri,
   )
 
+  const attributeValues = await userAttributeService.getUserSignUpAttributeValues(
+    c,
+    reqBody,
+  )
+
   const user = await userService.createAccountWithPassword(
     c,
     bodyDto,
+    attributeValues,
   )
 
   if (enableEmailVerification) {

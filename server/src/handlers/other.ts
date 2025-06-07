@@ -60,7 +60,9 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     ENABLE_PASSWORD_SIGN_IN: environment.ENABLE_PASSWORD_SIGN_IN,
     ENABLE_PASSWORDLESS_SIGN_IN: environment.ENABLE_PASSWORDLESS_SIGN_IN,
     ENABLE_ORG: environment.ENABLE_ORG,
+    ENABLE_USER_ATTRIBUTE: environment.ENABLE_USER_ATTRIBUTE,
     EMBEDDED_AUTH_ORIGINS: environment.EMBEDDED_AUTH_ORIGINS,
+    ENABLE_SAML_SSO_AS_SP: environment.ENABLE_SAML_SSO_AS_SP,
   }
 
   return c.json({ configs })

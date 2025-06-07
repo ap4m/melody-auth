@@ -4,11 +4,13 @@
     "brand": "Melody Auth",
     "logout": "Logout",
     "users": "Manage Users",
+    "userAttributes": "Manage User Attributes",
     "roles": "Manage Roles",
     "apps": "Manage Apps",
     "scopes": "Manage Scopes",
     "orgs": "Manage Orgs",
     "logs": "Manage Logs",
+    "samlSso": "Manage SAML",
     "dashboard": "Dashboard",
     "account": "Account"
   },
@@ -137,12 +139,36 @@
     "closeImpersonate": "Close",
     "noOrg": "No Organization"
   },
+  "userAttributes": {
+    "title": "User Attributes",
+    "name": "Name",
+    "includeInSignUpForm": "Include in Sign Up Form",
+    "requiredInSignUpForm": "Required in Sign Up Form",
+    "includeInIdTokenBody": "Include in ID Token Body",
+    "includeInUserInfo": "Include in User Info",
+    "new": "Create a user attribute",
+    "userAttribute": "User Attribute",
+    "localeNote": "Name value will be displayed if locale value is empty",
+    "locales": "Locales"
+  },
   "roles": {
     "title": "Roles",
     "role": "Role",
     "name": "Name",
     "status": "Status",
     "new": "Create a role"
+  },
+  "saml": {
+    "title": "SAML",
+    "idp": "IDP",
+    "name": "Name",
+    "status": "Status",
+    "new": "Create a SAML IDP",
+    "userIdAttribute": "User ID Attribute",
+    "emailAttribute": "Email Attribute",
+    "firstNameAttribute": "First Name Attribute",
+    "lastNameAttribute": "Last Name Attribute",
+    "metadata": "Metadata"
   },
   "scopes": {
     "title": "Scopes",

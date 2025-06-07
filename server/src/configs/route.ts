@@ -2,12 +2,15 @@ export enum InternalRoute {
   OAuth = '/oauth2/v1',
   Identity = '/identity/v1',
   ApiUsers = '/api/v1/users',
+  ApiUserAttributes = '/api/v1/user-attributes',
   ApiApps = '/api/v1/apps',
   ApiRoles = '/api/v1/roles',
   ApiScopes = '/api/v1/scopes',
   ApiOrgs = '/api/v1/orgs',
+  ApiSamlIdps = '/api/v1/saml/idps',
   ApiLogs = '/api/v1/logs',
   Embedded = '/embedded-auth/v1',
+  SamlSp = '/saml/sp/v1',
 }
 
 export enum OauthRoute {
