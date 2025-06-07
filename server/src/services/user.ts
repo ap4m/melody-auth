@@ -10,7 +10,7 @@ import {
   baseDto, identityDto, userDto,
 } from 'dtos'
 import {
-  orgModel, roleModel, userAppConsentModel, userModel, userRoleModel,
+  orgModel, roleModel, userAppConsentModel, userAttributeModel, userAttributeValueModel, userModel, userRoleModel,
 } from 'models'
 import {
   emailService, jwtService, kvService, roleService,
@@ -41,6 +41,27 @@ export const getUserInfo = async (
       messageConfig.RequestError.UserDisabled,
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  }
+
+  const {
+    ENABLE_USER_ATTRIBUTE: enableUserAttribute,
+    ENABLE_NAMES: enableNames,
+  } = env(c)
+
+  let attributes: Record<string, string> | undefined
+  if (enableUserAttribute) {
+    attributes = {}
+    const userAttributes = await userAttributeModel.getAll(c.env.DB)
+    const userAttributeValues = await userAttributeValueModel.getAllByUserId(
+      c.env.DB,
+      user.id,
+    )
+    for (const userAttributeValue of userAttributeValues) {
+      const userAttribute = userAttributes.find((attribute) => attribute.id === userAttributeValue.userAttributeId)
+      if (userAttribute?.includeInUserInfo) {
+        attributes[userAttribute.name] = userAttributeValue.value
+      }
+    }
   }
 
   const roles = await roleService.getUserRoles(
@@ -80,9 +101,9 @@ export const getUserInfo = async (
       }
       : null,
     roles,
+    attributes,
   }
 
-  const { ENABLE_NAMES: enableNames } = env(c)
   if (enableNames) {
     result.firstName = user.firstName
     result.lastName = user.lastName
@@ -215,12 +236,30 @@ export const getUserDetailByAuthId = async (
     )
     : undefined
 
+  const { ENABLE_USER_ATTRIBUTE: enableUserAttribute } = env(c)
+  let attributes: Record<string, string> | undefined
+  if (enableUserAttribute) {
+    attributes = {}
+    const userAttributes = await userAttributeModel.getAll(c.env.DB)
+    const userAttributeValues = await userAttributeValueModel.getAllByUserId(
+      c.env.DB,
+      user.id,
+    )
+    for (const userAttributeValue of userAttributeValues) {
+      const userAttribute = userAttributes.find((attribute) => attribute.id === userAttributeValue.userAttributeId)
+      if (userAttribute) {
+        attributes[userAttribute.name] = userAttributeValue.value
+      }
+    }
+  }
+
   const result = userModel.convertToApiRecordFull(
     user,
     enableNames,
     enableOrg,
     roles,
     org,
+    attributes,
   )
   return result
 }
@@ -356,6 +395,7 @@ interface CreateAccountBody {
 export const createAccountWithPassword = async (
   c: Context<typeConfig.Context>,
   bodyDto: CreateAccountBody,
+  attributeValues: Record<number, string>,
 ): Promise<userModel.Record> => {
   const user = await userModel.getNormalUserByEmail(
     c.env.DB,
@@ -395,6 +435,15 @@ export const createAccountWithPassword = async (
       lastName: bodyDto.lastName,
     },
   )
+
+  for (const [userAttributeId, value] of Object.entries(attributeValues)) {
+    await userAttributeValueModel.create(
+      c.env.DB,
+      {
+        userId: newUser.id, userAttributeId: Number(userAttributeId), value,
+      },
+    )
+  }
 
   return newUser
 }
@@ -625,6 +674,52 @@ export const processOidcAccount = async (
       emailVerified: 0,
       firstName: null,
       lastName: null,
+    },
+  )
+  return user
+}
+
+export interface SamlUser {
+  userId: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+}
+
+export const processSamlAccount = async (
+  c: Context<typeConfig.Context>,
+  samlUser: SamlUser,
+  idpName: string,
+  locale: typeConfig.Locale,
+  org?: string,
+) => {
+  const currentUser = await userModel.getSamlUserById(
+    c.env.DB,
+    samlUser.userId,
+    idpName,
+  )
+  if (currentUser && !currentUser.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  }
+
+  const user = currentUser ?? await userModel.create(
+    c.env.DB,
+    {
+      authId: crypto.randomUUID(),
+      orgSlug: org ?? '',
+      email: samlUser.email,
+      socialAccountId: samlUser.userId,
+      socialAccountType: `SAML_${idpName}` as userModel.SocialAccountType,
+      password: null,
+      locale,
+      emailVerified: 0,
+      firstName: samlUser.firstName,
+      lastName: samlUser.lastName,
     },
   )
   return user
@@ -1043,6 +1138,7 @@ export const updateUser = async (
   c: Context<typeConfig.Context>,
   authId: string,
   dto: userDto.PutUserDto,
+  attributeValues?: Record<number, string | null>,
 ): Promise<userModel.ApiRecordFull> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
@@ -1117,12 +1213,75 @@ export const updateUser = async (
     )
     : undefined
 
+  let attributeValuesByAttributeName: Record<string, string> | undefined
+  if (attributeValues) {
+    const userAttributes = await userAttributeModel.getAll(c.env.DB)
+    const userAttributeValues = await userAttributeValueModel.getAllByUserId(
+      c.env.DB,
+      updatedUser.id,
+    )
+    const attributeValuesToCreate: userAttributeValueModel.Create[] = []
+    const attributeValuesToUpdate: { id: number; data: userAttributeValueModel.Update }[] = []
+    const attributeValueIdsToDelete: number[] = []
+
+    userAttributes.forEach((userAttribute) => {
+      const newValue = attributeValues[userAttribute.id]
+      const oldValue = userAttributeValues.find((userAttributeValue) => {
+        return userAttributeValue.userAttributeId === userAttribute.id
+      })
+      if (!newValue && oldValue) {
+        attributeValueIdsToDelete.push(oldValue.id)
+      } else if (newValue && !oldValue) {
+        attributeValuesToCreate.push({
+          userId: updatedUser.id, userAttributeId: userAttribute.id, value: newValue,
+        })
+      } else if (newValue && oldValue) {
+        attributeValuesToUpdate.push({
+          id: oldValue.id, data: { value: newValue },
+        })
+      }
+    })
+
+    for (const attributeValueId of attributeValueIdsToDelete) {
+      await userAttributeValueModel.remove(
+        c.env.DB,
+        attributeValueId,
+      )
+    }
+
+    for (const attributeValueToCreate of attributeValuesToCreate) {
+      await userAttributeValueModel.create(
+        c.env.DB,
+        attributeValueToCreate,
+      )
+    }
+
+    for (const attributeValueToUpdate of attributeValuesToUpdate) {
+      await userAttributeValueModel.update(
+        c.env.DB,
+        attributeValueToUpdate.id,
+        attributeValueToUpdate.data,
+      )
+    }
+
+    attributeValuesByAttributeName = {}
+    for (const [attributeId, value] of Object.entries(attributeValues)) {
+      if (value) {
+        const attribute = userAttributes.find((attribute) => attribute.id === Number(attributeId))
+        if (attribute) {
+          attributeValuesByAttributeName[attribute.name] = value
+        }
+      }
+    }
+  }
+
   return userModel.convertToApiRecordFull(
     updatedUser,
     enableNames,
     enableOrg,
     roleNames,
     org,
+    attributeValuesByAttributeName,
   )
 }
 

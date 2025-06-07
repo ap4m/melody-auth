@@ -149,6 +149,14 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
     accessTool.Access.ReadOrg,
     userInfo?.roles,
   )
+  const showUserAttribute = configs?.ENABLE_USER_ATTRIBUTE && accessTool.isAllowedAccess(
+    accessTool.Access.ReadUserAttribute,
+    userInfo?.roles,
+  )
+  const showSamlSso = configs?.ENABLE_SAML_SSO_AS_SP && accessTool.isAllowedAccess(
+    accessTool.Access.ManageSamlSso,
+    userInfo?.roles,
+  )
 
   const supportedLocales = useMemo(
     () => {
@@ -218,6 +226,16 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
               </Link>
             </NavigationMenuItem>
           )}
+          {showUserAttribute && (
+            <NavigationMenuItem>
+              <Link
+                href={routeTool.Internal.UserAttributes}
+                className={navigationMenuTriggerStyle()}
+              >
+                {t('layout.userAttributes')}
+              </Link>
+            </NavigationMenuItem>
+          )}
           {accessTool.isAllowedAccess(
             accessTool.Access.ReadRole,
             userInfo?.roles,
@@ -274,6 +292,16 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
                 className={navigationMenuTriggerStyle()}
               >
                 {t('layout.logs')}
+              </Link>
+            </NavigationMenuItem>
+          )}
+          {showSamlSso && (
+            <NavigationMenuItem>
+              <Link
+                href={routeTool.Internal.Saml}
+                className={navigationMenuTriggerStyle()}
+              >
+                {t('layout.samlSso')}
               </Link>
             </NavigationMenuItem>
           )}

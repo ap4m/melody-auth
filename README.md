@@ -45,6 +45,7 @@
   - Email Verification
   - Password Reset
   - Role-Based Access Control
+  - User Attribute
   - Account Linking
   - Localization [How to support a new locale](https://auth.valuemelody.com/q_a.html#how-to-support-a-new-locale)
 - <b>Social Sign-In</b>:
@@ -69,6 +70,7 @@
   - manage_passkey
 - <b>Organization</b>:
   - Branding config override
+  - Organization users
 - <b>Mailer Option</b> [Email Provider Setup Doc](https://auth.valuemelody.com/email-provider-setup.html)
   - SendGrid
   - Mailgun
@@ -99,6 +101,7 @@
 - View Configurations
 - Manage Users
   - Impersonation [How to allow users with a custom role to perform impersonation](https://auth.valuemelody.com/q_a.html#how-to-allow-users-with-a-custom-role-to-perform-impersonation)
+- Manage User Attributes
 - Manage Apps
   - App Level MFA Config
 - Manage Scopes
@@ -115,6 +118,7 @@
 - [Next.js Full stack implementation Example](https://github.com/ValueMelody/melody-auth/tree/main/admin-panel)
 - [Next.js Auth.js Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/next-auth-js-example)
 - [React Native Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/react-native-example)
+- [Vanilla JavaScript Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/vite-web-example)
 - [Embedded Auth API Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/embedded-auth)
 
 ## Screenshots

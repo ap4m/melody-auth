@@ -1,6 +1,8 @@
 export enum TableName {
   App = 'app',
   User = 'user',
+  UserAttribute = 'user_attribute',
+  UserAttributeValue = 'user_attribute_value',
   UserAppConsent = 'user_app_consent',
   Role = 'role',
   UserRole = 'user_role',
@@ -9,6 +11,7 @@ export enum TableName {
   AppScope = 'app_scope',
   ScopeLocale = 'scope_locale',
   Org = 'org',
+  SamlIdp = 'saml_idp',
   EmailLog = 'email_log',
   SmsLog = 'sms_log',
   SignInLog = 'sign_in_log',
